@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title>Richie Test Ad</title>
+	<link rel="stylesheet" href="style.css">
+	<script src="mraid.js"></script>
+	<script>
+
+	document.addEventListener('DOMContentLoaded', function() {
+		document.getElementById("textContainer").addEventListener('click', function(e) {
+			mraid.open("http://richie.fi");
+		}, false);
+	}, false);
+
+	</script>
+	<script type="text/javascript" src="paper-full.min.js"></script>
+	<script type="text/paperscript" canvas="canvas">
+
+	// MRAID
+	function onMraidInit() {
+		if (mraid.getState() === 'loading') {
+			mraid.addEventListener('ready', onSdkReady);
+		} else {
+			onSdkReady();
+		}
+	}
+
+	function onSdkReady() {
+		if (mraid.isViewable()) {
+			startAnimating();
+		}
+
+		mraid.addEventListener('viewableChange', function(viewable) {
+			if (viewable) {
+				startAnimating();
+			} else {
+				stopAnimating();
+			}
+		});
+	}
+
+	onMraidInit();
+
+	function startAnimating() {
+		if (animating) {
+			return;
+		}
+
+		console.log('animation started');
+		animating = true;
+	}
+
+	function stopAnimating() {
+		if (animating == false) {
+			return;
+		}
+		
+		console.log('animation stopped');
+		animating = false;
+	}
+
+	// content
+	var layer = project.activeLayer;
+	var background = new Path.Rectangle(view.bounds);
+	var circles = new Array();
+	var lines = new Array();
+	var startPoints = new Array();
+	var destinationPoints = new Array();
+	var currentColor = 0;
+	var colors = new Array();
+	var destinationColor;
+	var animating = false;
+
+	setup();
+
+	function setup() {
+		background.fillColor = 'white';
+
+		colors[0] = new Color(59 / 255, 190 / 255, 214 / 255, 0.5);
+		colors[1] = new Color(85 / 255, 12 / 255, 232 / 255, 0.5);
+		colors[2] = new Color(255 / 255, 0 / 255, 0 / 255, 0.5);
+		colors[3] = new Color(232 / 255, 150 / 255, 12 / 255, 0.5);
+		colors[4] = new Color(192 / 255, 255 / 255, 13 / 255, 0.5);
+		destinationColor = colors[0];
+
+		for (var i = 0; i < 4; i++)	{
+			var circle = new Path.Circle(new Point(view.center.x, view.center.y), 100);
+			circle.fillColor = colors[0];
+			circles[i] = circle;
+		}
+
+		for (var i = 0; i < 6; i++) {
+			var line = new Path.Line(circles[0].position, circles[0].position);
+			line.strokeColor = new Color(0.9, 0.9, 0.9, 1.0);
+			lines[i] = line;
+		}
+
+		newValues(startPoints);
+		newValues(destinationPoints);
+	}
+
+	function updateLines() {
+		lines[0].firstSegment.point = circles[0].position;
+		lines[0].lastSegment.point = circles[1].position;
+		lines[1].firstSegment.point = circles[1].position;
+		lines[1].lastSegment.point = circles[2].position;
+		lines[2].firstSegment.point = circles[2].position;
+		lines[2].lastSegment.point = circles[3].position;
+		lines[3].firstSegment.point = circles[3].position;
+		lines[3].lastSegment.point = circles[0].position;
+		lines[4].firstSegment.point = circles[0].position;
+		lines[4].lastSegment.point = circles[2].position;
+		lines[5].firstSegment.point = circles[1].position;
+		lines[5].lastSegment.point = circles[3].position;
+	}
+
+	function newValues(pointArray) {
+		layer.position = view.center;
+		background.bounds = view.bounds;
+
+		var size = 400;
+
+		for (var i = 0; i < 4; i++) {
+			pointArray[i] = (view.center - (size / 2)) + Point.random() * size;
+		}
+	}
+
+	function onFrame(event) {
+		if (animating == false) {
+			return;
+		}
+
+		for (var i = 0; i < circles.length; i++) {
+			var vec = destinationPoints[i] - circles[i].position;
+			circles[i].position += vec / 20;
+
+			if (vec.length <= 0.01) {
+				newValues(destinationPoints);
+			}
+
+			// we want the alpha to remain unchanged
+			var color = circles[i].fillColor;
+			var red = destinationColor.red + ((color.red - destinationColor.red) / 1.05);
+			var green = destinationColor.green + ((color.green - destinationColor.green) / 1.05);
+			var blue = destinationColor.blue + ((color.blue - destinationColor.blue) / 1.05);
+			circles[i].fillColor = { red: red, green: green, blue: blue, alpha: 0.5 };
+		}
+
+		updateLines();
+	}
+
+	function onResize(event) {
+		newValues(destinationPoints);
+	}
+
+	function onMouseDown(event) {
+		newValues(destinationPoints);
+		currentColor++;
+		if (currentColor >= colors.length) {
+			currentColor = 0;
+		}
+
+		destinationColor = colors[currentColor];
+
+		window.richie.addEvent(["colorChanged","test"]);
+	}
+
+	</script>
+</head>
+<body>
+	<canvas id="canvas" resize></canvas>
+	<div id="container">
+		<div id="textContainer">
+			<span class="title">Richie</span><br/>
+			<span id="subtitle"></span>
+		</div>
+	</div>
+</body>
+</html>

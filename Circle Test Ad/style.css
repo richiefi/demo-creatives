@@ -1,0 +1,45 @@
+body
+{
+	margin: 0;
+	overflow: hidden;
+}
+
+#container
+{
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	position: absolute;
+	margin: auto;
+	width: 135px;
+	height: 75px;
+}
+
+#textContainer
+{
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	position: absolute;
+	margin: auto;
+	text-align: center;
+	width: 135px;
+	height: 75px;
+	font-family: Segoe UI Light, Arial, sans-serif;
+	font-weight: bold;
+	line-height: 2em;
+}
+
+.title
+{
+	font-size: 48px;
+	color: black;
+}
+
+#subtitle
+{
+	font-size: 24px;
+	color: gray;
+}
