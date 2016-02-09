@@ -18,7 +18,13 @@
 	<script type="text/javascript" src="paper-full.min.js"></script>
 	<script type="text/paperscript" canvas="canvas">
 
-	// MRAID
+	/*
+	 * The MRAID implementation starts here. First, we wait until MRAID has
+	 * finished loading, and then we add the 'viewableChange' event listener.
+	 * This event triggers when the ad is either visible or not visible,
+	 * starting and stopping the animations accordingly.
+	 */
+
 	function onMraidInit() {
 		if (mraid.getState() === 'loading') {
 			mraid.addEventListener('ready', onSdkReady);
@@ -56,12 +62,15 @@
 		if (animating == false) {
 			return;
 		}
-		
+
 		console.log('animation stopped');
 		animating = false;
 	}
 
-	// content
+	/*
+	 * The actual content of the creative starts here.
+	 */
+
 	var layer = project.activeLayer;
 	var background = new Path.Rectangle(view.bounds);
 	var circles = new Array();
